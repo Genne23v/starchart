@@ -3,10 +3,22 @@ import dayjs from 'dayjs';
 import { prisma } from '~/db.server';
 import { setIsReconciliationNeeded } from './system-state.server';
 
-import type { DnsRecord } from '@prisma/client';
+import type { DnsRecord, User } from '@prisma/client';
 
 export function getDnsRecordsByUsername(username: DnsRecord['username']) {
   return prisma.dnsRecord.findMany({
+    where: {
+      username,
+      NOT: {
+        type: DnsRecordType.TXT,
+        subdomain: '_acme-challenge',
+      },
+    },
+  });
+}
+
+export function getDnsRecordCountByUsername(username: DnsRecord['username']) {
+  return prisma.dnsRecord.count({
     where: {
       username,
       NOT: {
@@ -139,4 +151,22 @@ export function getReconciliationData() {
   return prisma.dnsRecord.findMany({
     select: { username: true, subdomain: true, type: true, value: true },
   });
+}
+
+export function getUsersByEmail(email: string): Promise<User[]> {
+  return prisma.user.findMany({
+    where: {
+      email: {
+        contains: email,
+      },
+    },
+  });
+}
+
+export function getUserCount(): Promise<number> {
+  return prisma.user.count();
+}
+
+export function getDnsRecordCount(): Promise<number> {
+  return prisma.dnsRecord.count();
 }

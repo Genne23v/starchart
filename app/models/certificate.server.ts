@@ -44,3 +44,7 @@ export function updateCertificateById(
 export function deleteCertificateById(id: Certificate['id']) {
   return prisma.certificate.delete({ where: { id } });
 }
+
+export function getCertificateCount() {
+  return prisma.certificate.count();
+}
